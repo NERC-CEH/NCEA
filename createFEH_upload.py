@@ -1,7 +1,13 @@
-'''Script to merge all FEH descriptors and create null values, ready to be 
-uploaded to Oracle'''
+'''
+Script to merge all FEH descriptors and create null values, ready to be 
+uploaded to Oracle.
 
+Note, this will combine all CSVs in .../TESTING_WITH_ORACLE/CSV/
+The CSVs in that directory are created by getFEH_standalone.py, which does not
+overwrite previous CSVs. Therefore, make sure .../TESTING_WITH_ORACLE/CSV/ is
+empty before running getFEH_standalone.py
 
+'''
 import os
 import sys
 import numpy as np

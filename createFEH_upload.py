@@ -1,5 +1,5 @@
-'''
-Script to merge all FEH descriptors and create null values, ready to be 
+"""
+Script to merge all FEH descriptors and create null values, ready to be
 uploaded to Oracle.
 
 Note, this will combine all CSVs in .../TESTING_WITH_ORACLE/CSV/
@@ -7,31 +7,36 @@ The CSVs in that directory are created by getFEH_standalone.py, which does not
 overwrite previous CSVs. Therefore, make sure .../TESTING_WITH_ORACLE/CSV/ is
 empty before running getFEH_standalone.py
 
-'''
+"""
 import os
-import sys
-import numpy as np
 import pandas as pd
-import time
 import glob
 
-'''Merges csv files located in the same folder'''
+
+ROOT_PATH = "/prj/nrfa_dev/nrfa_grids_cp/automate_nrfa"
+
+
 def combine_csv(folder):
+    """
+    Merges csv files located in the same folder
+
+    """
     os.chdir(folder)
     extension = 'csv'
     all_filenames = [i for i in glob.glob('*.{}'.format(extension))]
-    #combine all files in the list
-    combined_csv = pd.concat([pd.read_csv(f) for f in all_filenames ])
-    #export to csv
-    combined_csv.to_csv( "combined.csv", index=False, encoding='utf-8-sig')
+    # Combine all files in the list
+    combined_csv = pd.concat([pd.read_csv(f) for f in all_filenames])
+    # Export to csv
+    combined_csv.to_csv("combined.csv", index=False, encoding='utf-8-sig')
+
 
 def make_changes_in_csv(file):
     df = pd.read_csv(file)
 
-    #Select all CCAR and make them sq.km.
-    df.loc[df['PROPERTY_ITEM'] == 'CCAR', 'PROPERTY_VALUE'] = df['PROPERTY_VALUE']/400
+    # Select all CCAR and make them sq.km.
+    df.loc[df['PROPERTY_ITEM'] == 'CCAR', 'PROPERTY_VALUE'] = df['PROPERTY_VALUE'] / 400
 
-    #Make nulls
+    # Make nulls
     df.loc[(df['PROPERTY_ITEM'] == 'QUC2') & (df['PROPERTY_VALUE'] == -0.002), 'PROPERTY_VALUE'] = "" 
     df.loc[(df['PROPERTY_ITEM'] == 'QUL2') & (df['PROPERTY_VALUE'] == -0.002), 'PROPERTY_VALUE'] = "" 
     df.loc[(df['PROPERTY_ITEM'] == 'QUCO') & (df['PROPERTY_VALUE'] == -0.002), 'PROPERTY_VALUE'] = ""
@@ -67,9 +72,7 @@ def make_changes_in_csv(file):
     df.loc[(df['PROPERTY_ITEM'] == 'QSPR') & (df['PROPERTY_VALUE'] == -0.02), 'PROPERTY_VALUE'] = ""
     df.loc[(df['PROPERTY_ITEM'] == 'QALT') & (df['PROPERTY_VALUE'] == -2), 'PROPERTY_VALUE'] = ""
 
-
-    
-    #Change various LCM2015 categories from codes to words
+    # Change various LCM2015 categories from codes to words
     df.loc[(df['PROPERTY_ITEM'] == '2015_1'), 'PROPERTY_ITEM'] = "Broadleaved Woodland"
     df.loc[(df['PROPERTY_ITEM'] == '2015_2'), 'PROPERTY_ITEM'] = "Coniferous Woodland"
     df.loc[(df['PROPERTY_ITEM'] == '2015_3'), 'PROPERTY_ITEM'] = "Arable and Horticulture"
@@ -94,7 +97,7 @@ def make_changes_in_csv(file):
     df.loc[(df['PROPERTY_ITEM'] == '2015_9999'), 'PROPERTY_ITEM'] = "Unknown"
     df['TITLE'] = df['PROPERTY_ITEM']
 
-    #Change various LCM2007 categories from codes to words
+    # Change various LCM2007 categories from codes to words
     df.loc[(df['PROPERTY_ITEM'] == '2007_1'), 'PROPERTY_ITEM'] = "Broadleaved Woodland"
     df.loc[(df['PROPERTY_ITEM'] == '2007_2'), 'PROPERTY_ITEM'] = "Coniferous Woodland"
     df.loc[(df['PROPERTY_ITEM'] == '2007_3'), 'PROPERTY_ITEM'] = "Arable and Horticulture"
@@ -121,7 +124,7 @@ def make_changes_in_csv(file):
     df.loc[(df['PROPERTY_ITEM'] == '2007_9999'), 'PROPERTY_ITEM'] = "Unknown"
     df['TITLE'] = df['PROPERTY_ITEM']
 
-    #Change various LCM2000 categories from codes to words
+    # Change various LCM2000 categories from codes to words
     df.loc[(df['PROPERTY_ITEM'] == '2000_11'), 'PROPERTY_ITEM'] = "Broad Woodland"
     df.loc[(df['PROPERTY_ITEM'] == '2000_21'), 'PROPERTY_ITEM'] = "Coniferous Woodland"
     df.loc[(df['PROPERTY_ITEM'] == '2000_41'), 'PROPERTY_ITEM'] = "Arable Cereals"
@@ -151,15 +154,13 @@ def make_changes_in_csv(file):
     df.loc[(df['PROPERTY_ITEM'] == '2000_9999'), 'PROPERTY_ITEM'] = "Unknown"
     df['TITLE'] = df['PROPERTY_ITEM']
 
-    #Write the output as new file
+    # Write the output as new file
     df.to_csv("upload_to_Oracle.csv")
 
+
 if __name__ == "__main__":
-    
-    
-    #Change the root folder
-    combine_csv("/prj/nrfa_dev/nrfa_grids_cp/automate_nrfa/TESTING_WITH_ORACLE/CSV/")
+    # Change the root folder
+    combine_csv("%s/TESTING_WITH_ORACLE/CSV/" % ROOT_PATH)
 
-    #Change 
-    make_changes_in_csv("/prj/nrfa_dev/nrfa_grids_cp/automate_nrfa/TESTING_WITH_ORACLE/CSV/combined.csv")
-
+    # Change
+    make_changes_in_csv("%s/TESTING_WITH_ORACLE/CSV/combined.csv" % ROOT_PATH)

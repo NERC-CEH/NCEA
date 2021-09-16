@@ -257,12 +257,16 @@ def get_FEH_data(gb_stations_df, ni_stations_df):
     Loop through stations to get the FEH descriptors for GB and NI
 
     """
+    print("Extracting FEH descriptors ***************************************")
     # GB
-    for index, row in gb_stations_df.iterrows():
+    tot_gb_stations = len(gb_stations_df)
+    for num, (index, row) in enumerate(gb_stations_df.iterrows()):
         station_name = row['STATION']
         easting = int(row['DTM_EASTING'])
         northing = int(row['DTM_NORTHING'])
         country = "gb"
+
+        print("GB %s - %s/%s" % (station_name, num+1, tot_gb_stations))
 
         # Fix for RMD1, RMD2, RMD3. Not used any more since we decided to go
         # with WHS method of deriving valus from datasets. More on def notes.
@@ -300,11 +304,14 @@ def get_FEH_data(gb_stations_df, ni_stations_df):
                                                           now))
 
     # NI
-    for index, row in ni_stations_df.iterrows():
+    ni_tot_stations = len(ni_stations_df)
+    for num, (index, row) in enumerate(ni_stations_df.iterrows()):
         station_name = row['STATION']
         easting = int(row['DTM_EASTING'])
         northing = int(row['DTM_NORTHING'])
         country = "ni"
+
+        print("NI %s - %s/%s" % (station_name, num+1, ni_tot_stations))
 
         # Fix for RMD1, RMD2, RMD3. Not used any more since we decided to go
         # with WHS method of deriving valus from datasets. More on def notes.
@@ -354,6 +361,7 @@ def get_QCN_data(stations_df):
     coordinated directly from ArcGIS...
 
     """
+    print("Creating QCN (Polygon centroids) dataset *************************")
     qcndf = pd.DataFrame(columns=['STATION', 'PROPERTY_ITEM',
                                   'PROPERTY_VALUE'])
     # Loop through
@@ -391,12 +399,16 @@ def get_LCM2000_data(gb_stations_df, ni_stations_df):
     Loop through stations to get the LCM2000 descriptors for GB and NI
 
     """
+    print("Extracting LCM2000 descriptors ***********************************")
     # GB
-    for index, row in gb_stations_df.iterrows():
+    tot_gb_stations = len(gb_stations_df)
+    for num, (index, row) in enumerate(gb_stations_df.iterrows()):
         station_name = row['STATION']
         easting = int(row['DTM_EASTING'])
         northing = int(row['DTM_NORTHING'])
         country = "lcm2000_gb"
+
+        print("GB %s - %s/%s" % (station_name, num+1, tot_gb_stations))
 
         # Fix for RMD1, RMD2, RMD3. Not used any more since we decided to go
         # with WHS method of deriving valus from datasets. More on def notes.
@@ -543,11 +555,14 @@ def get_LCM2000_data(gb_stations_df, ni_stations_df):
                                                               now))
 
     # NI
-    for index, row in ni_stations_df.iterrows():
+    ni_tot_stations = len(ni_stations_df)
+    for num, (index, row) in enumerate(ni_stations_df.iterrows()):
         station_name = row['STATION']
         easting = int(row['DTM_EASTING'])
         northing = int(row['DTM_NORTHING'])
         country = "lcm2000_ni"
+
+        print("NI %s - %s/%s" % (station_name, num+1, ni_tot_stations))
 
         # Fix for RMD1, RMD2, RMD3. Not used any more since we decided to go
         # with WHS method of deriving valus from datasets. More on def notes.
@@ -709,6 +724,7 @@ def get_LCM2007_data(gb_stations_df, ni_stations_df):
     Loop through stations to get the LCM2007 descriptors for GB and NI
 
     """
+    print("Extracting LCM2007 descriptors ***********************************")
     # GB
     tot_gb_stations = len(gb_stations_df)
     for num, (index, row) in enumerate(gb_stations_df.iterrows()):
@@ -1016,15 +1032,19 @@ def get_LCM2007_data(gb_stations_df, ni_stations_df):
 
 def get_LCM2015_data(gb_stations_df, ni_stations_df):
     """
-    Loop through stations to get the LCM2007 descriptors for GB and NI
+    Loop through stations to get the LCM2015 descriptors for GB and NI
 
     """
+    print("Extracting LCM2015 descriptors ***********************************")
     # GB
-    for index, row in gb_stations_df.iterrows():
+    tot_gb_stations = len(gb_stations_df)
+    for num, (index, row) in enumerate(gb_stations_df.iterrows()):
         station_name = row['STATION']
         easting = int(row['DTM_EASTING'])
         northing = int(row['DTM_NORTHING'])
         country = "lcm2015_gb"
+
+        print("GB %s - %s/%s" % (station_name, num+1, tot_gb_stations))
 
         # Fix for RMD1, RMD2, RMD3. Not used any more since we decided to go
         # with WHS method of deriving valus from datasets. More on def notes.
@@ -1166,11 +1186,14 @@ def get_LCM2015_data(gb_stations_df, ni_stations_df):
                                                               now))
 
     # NI
-    for index, row in ni_stations_df.iterrows():
+    ni_tot_stations = len(ni_stations_df)
+    for num, (index, row) in enumerate(ni_stations_df.iterrows()):
         station_name = row['STATION']
         easting = int(row['DTM_EASTING'])
         northing = int(row['DTM_NORTHING'])
         country = "lcm2015_ni"
+
+        print("NI %s - %s/%s" % (station_name, num+1, ni_tot_stations))
 
         # Fix for RMD1, RMD2, RMD3. Not used any more since we decided to go
         # with WHS method of deriving valus from datasets. More on def notes.

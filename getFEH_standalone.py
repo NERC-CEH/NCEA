@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Loop through all GB and NI NRFA stations and extract catchment attributes into
 a CSV for each site.
@@ -9,7 +10,7 @@ If then using the createFEH_upload.py script, make sure the CSV directory is
 empty before runnign this, as createFEH_upload.py will merge all CSVs it finds.
 
 """
-import os
+import catchment_descriptors as ctch_desc
 
 import argparse
 import pandas as pd
@@ -97,7 +98,6 @@ def read_raster_lcm(x, y, directory):
     # Create a pandas dataframe to hold the data
     df = pd.DataFrame(columns=['FEH_Code', 'FEH_value'])
     for dir_path, dir_name_list, file_name_list in os.walk(directory):
-
         for file_name in file_name_list:
             # If this is not a tif file
             if not file_name.endswith('.tif'):
@@ -143,19 +143,16 @@ def get_descriptors(x, y, data_type):
 
     elif data_type == "ni":
         working_folder = choose_folder(data_type)
-        read_raster(x, y, working_folder)
         descriptor_values = read_raster(x, y, working_folder)
         return descriptor_values
 
     elif data_type == "lcm2015_gb":
         working_folder = choose_folder(data_type)
-        read_raster(x, y, working_folder)
         descriptor_values = read_raster(x, y, working_folder)
         return descriptor_values
 
     elif data_type == "lcm2015_ni":
         working_folder = choose_folder(data_type)
-        read_raster(x, y, working_folder)
         descriptor_values = read_raster(x, y, working_folder)
         return descriptor_values
 
@@ -167,46 +164,34 @@ def get_descriptors_lcm(x, y, data_type):
     """
     Retrieves descriptors from various raster files
 
-    TODO - Check if the following is equivilent
-    working_folder = choose_folder(data_type)
-    descriptor_values = read_raster_lcm(x, y, working_folder)
-    return descriptor_values
-
     """
     if data_type == "lcm2015_gb":
         working_folder = choose_folder(data_type)
-        # TODO = Why is this function run twice?
-        read_raster_lcm(x, y, working_folder)
         descriptor_values = read_raster_lcm(x, y, working_folder)
         return descriptor_values
 
     elif data_type == "lcm2015_ni":
         working_folder = choose_folder(data_type)
-        read_raster_lcm(x, y, working_folder)
         descriptor_values = read_raster_lcm(x, y, working_folder)
         return descriptor_values
 
     elif data_type == "lcm2007_gb":
         working_folder = choose_folder(data_type)
-        read_raster(x, y, working_folder)
         descriptor_values = read_raster_lcm(x, y, working_folder)
         return descriptor_values
 
     elif data_type == "lcm2007_ni":
         working_folder = choose_folder(data_type)
-        read_raster(x, y, working_folder)
         descriptor_values = read_raster_lcm(x, y, working_folder)
         return descriptor_values
 
     elif data_type == "lcm2000_gb":
         working_folder = choose_folder(data_type)
-        read_raster(x, y, working_folder)
         descriptor_values = read_raster_lcm(x, y, working_folder)
         return descriptor_values
 
     elif data_type == "lcm2000_ni":
         working_folder = choose_folder(data_type)
-        read_raster(x, y, working_folder)
         descriptor_values = read_raster_lcm(x, y, working_folder)
         return descriptor_values
 
@@ -252,7 +237,43 @@ def fixRMD_northing(num):
     return new_num
 
 
-def get_FEH_data(gb_stations_df, ni_stations_df):
+def save_FEH_data(easting, northing, country, station_name, savepath):
+    """
+    Extract FEH data for corrds and save.
+
+    """
+    # Fix for RMD1, RMD2, RMD3. Not used any more since we decided to go
+    # with WHS method of deriving valus from datasets. More on def notes.
+    easting = fixRMD_easting(easting)
+    northing = fixRMD_northing(northing)
+    output_file = get_descriptors(easting, northing, country)
+
+    # Convert column to float in order to use it in the next line
+    output_file["FEH_value"] = output_file["FEH_value"].astype(float)
+
+    # Eliminate all -9999 values
+    output_file = output_file[output_file.FEH_value > -5000]
+
+    # Add Columns to match NRFA Oracle table
+    output_file["STATION"] = station_name
+    output_file["PROPERTY_GROUP"] = "FEH"
+    output_file["PROPERTY_METHOD"] = "automatic"
+    output_file["PROPERTY_COMMENT"] = ""
+
+    # Rename columns
+    output_file = output_file.rename(
+        columns={'FEH_value': 'PROPERTY_VALUE',
+                 'FEH_Code': 'PROPERTY_ITEM'})
+
+    # Rearrange columns to match Oracle table
+    output_file = output_file[["STATION", "PROPERTY_GROUP",
+                               "PROPERTY_ITEM", "PROPERTY_VALUE",
+                               "PROPERTY_METHOD", "PROPERTY_COMMENT"]]
+
+    output_file.to_csv(savepath)
+
+
+def get_FEH_data_for_stations(gb_stations_df, ni_stations_df):
     """
     Loop through stations to get the FEH descriptors for GB and NI
 
@@ -264,44 +285,12 @@ def get_FEH_data(gb_stations_df, ni_stations_df):
         station_name = row['STATION']
         easting = int(row['DTM_EASTING'])
         northing = int(row['DTM_NORTHING'])
-        country = "gb"
+
+        savepath = "%s/TESTING_WITH_ORACLE/CSV/FEH_%s_%s.csv" % (
+            ROOT_PATH, station_name, int(time.time()))
 
         print("GB %s - %s/%s" % (station_name, num+1, tot_gb_stations))
-
-        # Fix for RMD1, RMD2, RMD3. Not used any more since we decided to go
-        # with WHS method of deriving valus from datasets. More on def notes.
-        easting = fixRMD_easting(easting)
-        northing = fixRMD_northing(northing)
-        output_file = get_descriptors(easting, northing, country)
-
-        # Convert column to float in order to use it in the next line
-        output_file["FEH_value"] = output_file["FEH_value"].astype(float)
-
-        # Eliminate all -9999 values
-        output_file = output_file[output_file.FEH_value > -5000]
-
-        # Add Columns to match NRFA Oracle table
-        output_file["STATION"] = station_name
-        output_file["PROPERTY_GROUP"] = "FEH"
-        output_file["PROPERTY_METHOD"] = "automatic"
-        output_file["PROPERTY_COMMENT"] = ""
-
-        # Rename columns
-        output_file = output_file.rename(
-            columns={'FEH_value': 'PROPERTY_VALUE',
-                     'FEH_Code': 'PROPERTY_ITEM'})
-
-        # Rearrange columns to match Oracle table
-        output_file = output_file[["STATION", "PROPERTY_GROUP",
-                                   "PROPERTY_ITEM", "PROPERTY_VALUE",
-                                   "PROPERTY_METHOD", "PROPERTY_COMMENT"]]
-
-        now = int(time.time())
-
-        output_file.to_csv(
-            "%s/TESTING_WITH_ORACLE/CSV/FEH_%s_%s.csv" % (ROOT_PATH,
-                                                          station_name,
-                                                          now))
+        save_FEH_data(easting, northing, "gb", station_name, savepath)
 
     # NI
     ni_tot_stations = len(ni_stations_df)
@@ -309,45 +298,12 @@ def get_FEH_data(gb_stations_df, ni_stations_df):
         station_name = row['STATION']
         easting = int(row['DTM_EASTING'])
         northing = int(row['DTM_NORTHING'])
-        country = "ni"
+
+        savepath = "%s/TESTING_WITH_ORACLE/CSV/FEH_%s_%s.csv" % (
+            ROOT_PATH, station_name, int(time.time()))
 
         print("NI %s - %s/%s" % (station_name, num+1, ni_tot_stations))
-
-        # Fix for RMD1, RMD2, RMD3. Not used any more since we decided to go
-        # with WHS method of deriving valus from datasets. More on def notes.
-        easting = fixRMD_easting(easting)
-        northing = fixRMD_northing(northing)
-        output_file = get_descriptors(easting, northing, country)
-
-        # Convert column to flot in order to use it in the next line
-        output_file["FEH_value"] = output_file["FEH_value"].astype(float)
-
-        # Eliminate all "null" values
-        # TODO - should this be -5000 like GB?
-        output_file = output_file[output_file.FEH_value > -500]
-
-        # Add Columns to match NRFA Oracle table
-        output_file["STATION"] = station_name
-        output_file["PROPERTY_GROUP"] = "FEH"
-        output_file["PROPERTY_METHOD"] = "automatic"
-        output_file["PROPERTY_COMMENT"] = ""
-
-        # Rename columns
-        output_file = output_file.rename(
-            columns={'FEH_value': 'PROPERTY_VALUE',
-                     'FEH_Code': 'PROPERTY_ITEM'})
-
-        # Rearrange columns to match Oracle table
-        output_file = output_file[["STATION", "PROPERTY_GROUP",
-                                   "PROPERTY_ITEM", "PROPERTY_VALUE",
-                                   "PROPERTY_METHOD", "PROPERTY_COMMENT"]]
-
-        now = int(time.time())
-
-        output_file.to_csv(
-            "%s/TESTING_WITH_ORACLE/CSV/FEH_%s_%s.csv" % (ROOT_PATH,
-                                                          station_name,
-                                                          now))
+        save_FEH_data(easting, northing, "ni", savepath)
 
 
 def get_QCN_data(stations_df):
@@ -508,7 +464,6 @@ def get_LCM2000_data(gb_stations_df, ni_stations_df):
         # Append rows with values
         # Get the max index value first
         index_no = output_file.index.max()
-
         output_file.loc[index_no+1] = ([
             station_name, "lcm2000nrfav2021", "Woodland", nrfa_woodland,
             "automatic", "", "Woodland", "proportion", "11+21"])
@@ -1373,7 +1328,7 @@ def main(stations, attributes):
 
     for attribute in attributes:
         if attribute == "FEH":
-            get_FEH_data(gb_stations_df, ni_stations_df)
+            get_FEH_data_for_stations(gb_stations_df, ni_stations_df)
 
         elif attribute == "QCN":
             get_QCN_data(qcn_stations_df)

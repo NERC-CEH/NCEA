@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Script to merge all FEH descriptors and create null values, ready to be
 uploaded to Oracle.
@@ -37,8 +38,8 @@ def make_changes_in_csv(file):
     df.loc[df['PROPERTY_ITEM'] == 'CCAR', 'PROPERTY_VALUE'] = df['PROPERTY_VALUE'] / 400
 
     # Make nulls
-    df.loc[(df['PROPERTY_ITEM'] == 'QUC2') & (df['PROPERTY_VALUE'] == -0.002), 'PROPERTY_VALUE'] = "" 
-    df.loc[(df['PROPERTY_ITEM'] == 'QUL2') & (df['PROPERTY_VALUE'] == -0.002), 'PROPERTY_VALUE'] = "" 
+    df.loc[(df['PROPERTY_ITEM'] == 'QUC2') & (df['PROPERTY_VALUE'] == -0.002), 'PROPERTY_VALUE'] = ""
+    df.loc[(df['PROPERTY_ITEM'] == 'QUL2') & (df['PROPERTY_VALUE'] == -0.002), 'PROPERTY_VALUE'] = ""
     df.loc[(df['PROPERTY_ITEM'] == 'QUCO') & (df['PROPERTY_VALUE'] == -0.002), 'PROPERTY_VALUE'] = ""
     df.loc[(df['PROPERTY_ITEM'] == 'QUCO') & (df['PROPERTY_VALUE'] == -2), 'PROPERTY_VALUE'] = ""
     df.loc[(df['PROPERTY_ITEM'] == 'QULO') & (df['PROPERTY_VALUE'] == -0.002), 'PROPERTY_VALUE'] = ""

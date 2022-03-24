@@ -29,7 +29,7 @@ def raw_data_fpath(year):
 def download_latest_batch_files():
     # Download all files from EA server to 'raw' folder. Don't need to do this
     # every time, only when the raw data is updated.
-    url = "%s?year=" % paths.WQ_BATCH_URL
+    url = "%s?year=" % paths.EA_WQ_BATCH_URL
     for year in range(2000, datetime.now().year):
         try:
             r = requests.get(url + str(year))

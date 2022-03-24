@@ -218,11 +218,16 @@ class CatchmentData(object):
         "RMD3": "ddf-d3",
     }
 
-    def __init__(self, easting, northing, station=""):
+    def __init__(self, easting, northing, station="", snap_to_river=False):
         self.easting_raw = easting
         self.northing_raw = northing
 
-        self.easting, self.northing = self._river_snapping()
+        if snap_to_river:
+            self.easting, self.northing = self._river_snapping()
+        else:
+            self.easting = self.easting_raw
+            self.northing = self.northing_raw
+
         self.region = self._get_region()
 
         self.station = station
@@ -238,7 +243,19 @@ class CatchmentData(object):
         self._valid_LCM_years = [2000, 2007, 2015]
 
     def _river_snapping(self):
-        return self.easting_raw, self.northing_raw
+        cell_dict = closest_ccar_above_val(self.easting_raw,
+                                           self.northing_raw,
+                                           min_ccar=200,
+                                           max_depths=20)
+        if cell_dict is None:
+            raise UserWarning("No cell found close enough for river snapping")
+
+        print("Coords snapped to river. From (%s, %s) to (%s, %s)" % (
+            self.easting_raw, self.northing_raw, cell_dict["easting"],
+            cell_dict["northing"]
+        ))
+
+        return cell_dict["easting"], cell_dict["northing"]
 
     def _get_region(self):
         """

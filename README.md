@@ -1,4 +1,4 @@
-# NCEA
+# NCEA Freshwater Workflow
 This module contains two features:
 -	Functions to return data availability information from a selection of environmental networks
 -	Functions to return catchment data for any coordinates

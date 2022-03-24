@@ -156,7 +156,7 @@ DATA_AVAILABILITY_FPATH = METADATA_CSV_DIR + "data_availability_{NETWORK}.csv"
 san_FWDE_dirs = ["%s%snerclactdb.nerc-lancaster.ac.uk" % (os.sep, os.sep),
                  "appdev", "appdev", "HYDROLOGY", "FWDE"]
 
-METADATA_AVAIL_JSON_DIRS = {
+SAN_AVAIL_JSON_DIRS = {
     config.EA_WQ_ID: make_fpath(san_FWDE_dirs + ["EA_water_quality",
                                                  "availability"]),
     config.EA_INV_ID: make_fpath(san_FWDE_dirs + ["EA_invertibrates",

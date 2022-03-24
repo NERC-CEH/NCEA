@@ -1,7 +1,9 @@
-# NCEA
+# NCEA Freshwater Workflow
 This module contains two features:
 -	Functions to return data availability information from a selection of environmental networks
 -	Functions to return catchment data for any coordinates
+
+_Note, no data files are included in this repository_
 
 ## Network data availability
 All functions are contained in **network_data_availability.py**

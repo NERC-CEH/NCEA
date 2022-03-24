@@ -4,3 +4,7 @@ input_files/
 output_files/
 metadata/
 testing.py
+add_FEH_to_IHDTM_file.py
+metadata_builder_old.py
+data_tools.py
+process_wq_data.py

@@ -1414,7 +1414,7 @@ def create_network_json():
         network_id=config.EA_WQ_ID,
         network_name="EA Water Quality",
         network_desc="EA Water quality monitoring network",
-        folder="wq",
+        folder="EA_water_quality",
         shape="square",
         access="geojson",
         updates="Realtime data available",
@@ -1429,7 +1429,7 @@ def create_network_json():
         network_name="EA Macroinvertebrates",
         network_desc="Data from freshwater river macroinvertebrate surveys "
                      "carried out across England from 1965 onwards.",
-        folder="inv",
+        folder="EA_invertibrates",
         shape="diamond",
         access="geojson",
         updates="Realtime data available",
@@ -1444,7 +1444,7 @@ def create_network_json():
         network_name="EA Macrophyte",
         network_desc="Data from freshwater river macrophyte (plant) surveys "
                      "carried out across England from 1980 onwards.",
-        folder="macp",
+        folder="EA_macrophyte",
         shape="triangle-up",
         access="geojson",
         updates="Realtime data available",
@@ -1459,7 +1459,7 @@ def create_network_json():
         network_name="EA Diatom",
         network_desc="Data from freshwater river diatom (algae) surveys "
                      "carried out across England from 1993 onwards.",
-        folder="diat",
+        folder="EA_diatom",
         shape="arrowhead-down",
         access="geojson",
         updates="Realtime data available",
@@ -1477,7 +1477,7 @@ def create_network_json():
                      "coastal water (TraC) fish monitoring surveys. These "
                      "samples are collected and analysed by the Environment "
                      "Agency and by third parties.",
-        folder="fish",
+        folder="EA_fish",
         shape="triangle-down",
         access="geojson",
         updates="Realtime data available",
@@ -1497,7 +1497,7 @@ def create_network_json():
                      "water quality of our rivers; - further the understanding "
                      "of riverfly populations; - and actively conserve "
                      "riverfly habitats.",
-        folder="rf",
+        folder="riverflies",
         shape="arrowhead-up",
         access="geojson",
         updates="Realtime data not available",
@@ -1545,6 +1545,17 @@ def create_network_json():
 
 
 # *** Convert to GeoJSON ******************************************************
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
+
+
 def _init_geojson():
     return {
       "type": "FeatureCollection",
@@ -1794,7 +1805,7 @@ def availability_geojson_split(networks="all", split_area="op_catchments",
                                                      network_id)
 
             with open(fpath, 'w') as f:
-                json.dump(geojson, f)
+                json.dump(geojson, f, cls=NpEncoder)
 
 
 def data_types_json(networks="all"):
@@ -1830,7 +1841,8 @@ if __name__ == "__main__":
     #create_FWW_metadata()
     #create_NRFA_metadata()
 
+
     #create_all_metadata_csv()
 
-    #create_network_json()
-    availability_geojson_split(split_area="op_catchments")
+    create_network_json()
+    #availability_geojson_split(split_area="op_catchments")

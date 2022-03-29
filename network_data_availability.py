@@ -43,6 +43,7 @@ updated before re-running.
 """
 import paths
 import config
+import utils
 
 import urllib.request
 import os
@@ -989,6 +990,7 @@ def create_RF_metadata():
 
         f_ext = filename.split(".")[-1]
         if f_ext == "csv":
+            continue
             rf_data = pd.read_csv(file_path, usecols=usecols)
         elif f_ext == "xlsx":
             rf_data = pd.read_excel(file_path, header=1, usecols=usecols)
@@ -996,7 +998,13 @@ def create_RF_metadata():
             continue
 
         print(filename)
-        rf_data["Site_id"] = rf_data["Site"] + " on " + rf_data["River"]
+
+        rf_data["Site_full"] = rf_data["Site"] + rf_data["River"] + \
+                               rf_data["Lat"].astype(str) + \
+                               rf_data["Long"].astype(str)
+
+        rf_data["Site_id"] = rf_data["Site_full"].apply(utils._md5_hash)
+        rf_data.drop('Site_full', axis=1, inplace=True)
 
         if rf_data["Date"].dtypes == "datetime64[ns]":
             rf_data["Date"] = rf_data["Date"].dt.strftime('%Y-%m-%d')
@@ -1098,16 +1106,17 @@ def create_FWW_metadata():
                                      units=dtype_info["unit"])
         dtype_rows[dtype_id] = dtype_dict
 
-    usecols = ["site_name", "sample_date", "lat", "lng"] + dtype_ids
+    usecols = ["sample_ID", "site_name", "sample_date", "lat", "lng"] + \
+               dtype_ids
 
     sites_rows = []
     avail_rows = []
 
     fww_data = pd.read_csv(paths.FWW_RAW_FILE, usecols=usecols)
 
-    for site_id in fww_data["site_name"].unique():
+    for site_id in fww_data["sample_ID"].unique():
 
-        fww_site = fww_data.loc[fww_data["site_name"] == site_id]
+        fww_site = fww_data.loc[fww_data["sample_ID"] == site_id]
         if len(fww_site) == 0:
             continue
 
@@ -1119,7 +1128,7 @@ def create_FWW_metadata():
         # Create site data
         site_dict = make_site_dict(
             site_id=site_id,
-            site_name=site_id,
+            site_name=fww_site.iloc[0]["site_name"],
             network_id=config.FWW_ID,
             lat=fww_site.iloc[0]["lat"],
             long=fww_site.iloc[0]["lng"]
@@ -1288,11 +1297,19 @@ def create_NRFA_metadata():
     checked_avail_rows = []
     for avail_dict in avail_rows:
         if avail_dict["DTYPE_ID"] == "cdr":
+            add_to_checked = False
             site_id = avail_dict["SITE_ID"]
             mean_cdr = cdr_mean_data.loc[cdr_mean_data["STATION"] == site_id,
                                          "mean_rainfall"]
+            count_cdr = cdr_mean_data.loc[cdr_mean_data["STATION"] == site_id,
+                                          "count_rainfall"]
             if len(mean_cdr) > 0:
                 avail_dict["SITE_VALUE_MEAN"] = mean_cdr.values[0]
+                add_to_checked = True
+            if len(count_cdr) > 0:
+                avail_dict["SITE_VALUE_COUNT"] = count_cdr.values[0]
+                add_to_checked = True
+            if add_to_checked is True:
                 checked_avail_rows.append(avail_dict)
         else:
             checked_avail_rows.append(avail_dict)
@@ -1313,6 +1330,7 @@ def create_NRFA_metadata():
                 dtype_id="amax-stage",
                 start_date=row["start"],
                 end_date=row["end"],
+                value_count=row["count_stage"],
                 value_mean=row["mean_amax_stage"])
             checked_avail_rows.append(amst_avail_dict)
 
@@ -1324,6 +1342,7 @@ def create_NRFA_metadata():
                 dtype_id="amax-flow",
                 start_date=row["start"],
                 end_date=row["end"],
+                value_count=row["count_flow"],
                 value_mean=row["mean_amax_flow"])
             checked_avail_rows.append(amfl_avail_dict)
 
@@ -1373,21 +1392,54 @@ def _get_dtype_dicts(network_id):
         dtype={"DTYPE_ID": str})
     dtypes_info = dtypes_info.replace({np.nan: None})
 
+    avail_info = pd.read_csv(
+        paths.DATA_AVAILABILITY_FPATH.format(NETWORK=network_id),
+        dtype={"DTYPE_ID": str, "SITE_ID": str})
+    avail_info = avail_info.replace({np.nan: None})
+
     dtype_dicts = []
     for i, dtype in dtypes_info.iterrows():
+        dtype_counts = avail_info[
+            avail_info["DTYPE_ID"] == dtype["DTYPE_ID"]]["SITE_VALUE_COUNT"]
+        vld_dtype_counts = dtype_counts[dtype_counts.notnull()]
+
+        if len(vld_dtype_counts) > 0:
+            count_percentiles = {
+                "p_20": _try_round(np.percentile(vld_dtype_counts, 20), 2),
+                "p_40": _try_round(np.percentile(vld_dtype_counts, 40), 2),
+                "p_60": _try_round(np.percentile(vld_dtype_counts, 60), 2),
+                "p_80": _try_round(np.percentile(vld_dtype_counts, 80), 2),
+            }
+            count_min = _try_round(vld_dtype_counts.min(), 2)
+            count_max = _try_round(vld_dtype_counts.max(), 2)
+            count_mean = _try_round(vld_dtype_counts.mean(), 2)
+        else:
+            count_percentiles = {
+                "p_20": None,
+                "p_40": None,
+                "p_60": None,
+                "p_80": None,
+            }
+
         dtype_dict = {
             "dtype_id": dtype["DTYPE_ID"],
             "dtype_name": dtype["DTYPE_NAME"],
             "dtype_desc": dtype["DTYPE_DESC"],
             "network_id": dtype["NETWORK_ID"],
             "mean_min": _try_round(dtype["MEAN_MIN"], 2),
-            "percentile_20": _try_round(dtype["MEAN_PERCENTILE_20"], 2),
-            "percentile_40": _try_round(dtype["MEAN_PERCENTILE_40"], 2),
-            "percentile_60": _try_round(dtype["MEAN_PERCENTILE_60"], 2),
-            "percentile_80": _try_round(dtype["MEAN_PERCENTILE_80"], 2),
+            "count_min": count_min,
+            "count_percentiles": count_percentiles,
+            "value_percentiles": {
+                "p_20": _try_round(dtype["MEAN_PERCENTILE_20"], 2),
+                "p_40": _try_round(dtype["MEAN_PERCENTILE_40"], 2),
+                "p_60": _try_round(dtype["MEAN_PERCENTILE_60"], 2),
+                "p_80": _try_round(dtype["MEAN_PERCENTILE_80"], 2),
+            },
             "mean_max": _try_round(dtype["MEAN_MAX"], 2),
+            "count_max": count_max,
             "mean_mean": _try_round(dtype["MEAN_MEAN"], 2),
-            "mean_count": dtype["MEAN_COUNT"],
+            "count_mean": count_mean,
+            "site_count": len(dtype_counts),
         }
         dtype_dicts.append(dtype_dict)
 
@@ -1478,7 +1530,7 @@ def create_network_json():
                      "samples are collected and analysed by the Environment "
                      "Agency and by third parties.",
         folder="EA_fish",
-        shape="triangle-down",
+        shape="triangle-left",
         access="geojson",
         updates="Realtime data available",
         website=paths.EA_FISH_WEBSITE,
@@ -1529,7 +1581,7 @@ def create_network_json():
         network_desc="The National River Flow Archive (NRFA) is the UK’s "
                      "focal point for river flow data",
         folder="nrfa",
-        shape="x",
+        shape="triangle-right",
         access="geojson",
         updates="Realtime data available",
         website=paths.NRFA_WEBSITE,
@@ -1845,4 +1897,4 @@ if __name__ == "__main__":
     #create_all_metadata_csv()
 
     create_network_json()
-    #availability_geojson_split(split_area="op_catchments")
+    #availability_geojson_split("FWW", split_area="op_catchments")

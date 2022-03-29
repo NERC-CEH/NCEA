@@ -141,6 +141,8 @@ NRFA_WEBSITE = "https://nrfa.ceh.ac.uk/"
 # --- Metadata ----------------------------------------------------------------
 METADATA_CSV_DIR = make_fpath(metadata_dirs + ["csvs"])
 METADATA_AVAIL_JSON_DIR = make_fpath(metadata_dirs + ["json", "availability"])
+METADATA_GRAPHS_JSON_DIR = make_fpath(metadata_dirs + ["json", "graphs"])
+METADATA_MAPS_JSON_DIR = make_fpath(metadata_dirs + ["json", "maps"])
 METADATA_DTYPE_JSON_DIR = make_fpath(metadata_dirs + ["json", "dtypes"])
 METADATA_AREA_JSON_DIR = make_fpath(metadata_dirs + ["json", "areas"])
 
@@ -174,6 +176,45 @@ SAN_AVAIL_JSON_DIRS = {
     config.NRFA_ID: make_fpath(san_FWDE_dirs + ["nrfa",
                                                 "availability"]),
 }
+
+SAN_MAPS_JSON_DIRS = {
+    config.EA_WQ_ID: make_fpath(san_FWDE_dirs + ["EA_water_quality",
+                                                 "maps"]),
+    config.EA_INV_ID: make_fpath(san_FWDE_dirs + ["EA_invertibrates",
+                                                  "maps"]),
+    config.EA_MACP_ID: make_fpath(san_FWDE_dirs + ["EA_macrophyte",
+                                                   "maps"]),
+    config.EA_DIAT_ID: make_fpath(san_FWDE_dirs + ["EA_diatom",
+                                                   "maps"]),
+    config.EA_FISH_ID: make_fpath(san_FWDE_dirs + ["EA_fish",
+                                                   "maps"]),
+    config.RF_ID: make_fpath(san_FWDE_dirs + ["riverflies",
+                                              "maps"]),
+    config.FWW_ID: make_fpath(san_FWDE_dirs + ["fww",
+                                               "maps"]),
+    config.NRFA_ID: make_fpath(san_FWDE_dirs + ["nrfa",
+                                                "maps"]),
+}
+
+SAN_GRAPHS_JSON_DIRS = {
+    config.EA_WQ_ID: make_fpath(san_FWDE_dirs + ["EA_water_quality",
+                                                 "graphs"]),
+    config.EA_INV_ID: make_fpath(san_FWDE_dirs + ["EA_invertibrates",
+                                                  "graphs"]),
+    config.EA_MACP_ID: make_fpath(san_FWDE_dirs + ["EA_macrophyte",
+                                                   "graphs"]),
+    config.EA_DIAT_ID: make_fpath(san_FWDE_dirs + ["EA_diatom",
+                                                   "graphs"]),
+    config.EA_FISH_ID: make_fpath(san_FWDE_dirs + ["EA_fish",
+                                                   "graphs"]),
+    config.RF_ID: make_fpath(san_FWDE_dirs + ["riverflies",
+                                              "graphs"]),
+    config.FWW_ID: make_fpath(san_FWDE_dirs + ["fww",
+                                               "graphs"]),
+    config.NRFA_ID: make_fpath(san_FWDE_dirs + ["nrfa",
+                                                "graphs"]),
+}
+
 
 # --- Other -------------------------------------------------------------------
 # URLs

@@ -131,7 +131,6 @@ def create_RF_maps_and_graphs_data(save_live=False):
 
         f_ext = filename.split(".")[-1]
         if f_ext == "csv":
-            continue
             rf_data = pd.read_csv(file_path, usecols=usecols)
         elif f_ext == "xlsx":
             rf_data = pd.read_excel(file_path, header=1, usecols=usecols)
@@ -228,7 +227,6 @@ def create_RF_maps_and_graphs_data(save_live=False):
                 tfile.write(jsonStr)
                 tfile.close()
             except Exception as e:
-                import pdb; pdb.set_trace()
                 print(e)
                 print("opcat_id error", opcat_id)
                 continue

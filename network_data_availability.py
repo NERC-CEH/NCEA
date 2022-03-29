@@ -990,7 +990,6 @@ def create_RF_metadata():
 
         f_ext = filename.split(".")[-1]
         if f_ext == "csv":
-            continue
             rf_data = pd.read_csv(file_path, usecols=usecols)
         elif f_ext == "xlsx":
             rf_data = pd.read_excel(file_path, header=1, usecols=usecols)
@@ -1008,6 +1007,9 @@ def create_RF_metadata():
 
         if rf_data["Date"].dtypes == "datetime64[ns]":
             rf_data["Date"] = rf_data["Date"].dt.strftime('%Y-%m-%d')
+
+        # Set any missing times to midday
+        rf_data.loc[rf_data["Time"].isnull(), "Time"] = "12:00"
 
         rf_data["DateTime"] = pd.to_datetime(
             rf_data["Date"] + " " + rf_data["Time"])
@@ -1896,5 +1898,5 @@ if __name__ == "__main__":
 
     #create_all_metadata_csv()
 
-    create_network_json()
-    #availability_geojson_split("FWW", split_area="op_catchments")
+    #create_network_json()
+    availability_geojson_split("RF", split_area="ihu_areas")

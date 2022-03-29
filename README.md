@@ -102,13 +102,24 @@ It has the following structure (using example):
           "dtype_desc": "Nitrate as N",
           "network_id": "EA_WQ",
           "mean_min": 0,
-          "percentile_20": 1.62,
-          "percentile_40": 4.01,
-          "percentile_60": 6.36,
-          "percentile_80": 8.65,
+          "count_min": 1,
+          "count_percentiles": {
+              "p_20": 14.8,
+              "p_40": 64.0,
+              "p_60": 112.0,
+              "p_80": 163.0
+          },
+          "value_percentiles": {
+              "p_20": 1.62,
+              "p_40": 4.01,
+              "p_60": 6.36,
+              "p_80": 8.65
+          },
           "mean_max": 370.08,
+          "count_max": 1388,
           "mean_mean": 5.78,
-          "mean_count": 4060
+          "count_mean": 97.26,
+          "site_count": 4060
       }]
     }]
 

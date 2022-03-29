@@ -5,6 +5,8 @@ This module contains two features:
 
 _Note, no data files are included in this repository_
 
+![Workflow schematic](https://github.com/NERC-CEH/NCEA-Freshwater-Workflow/blob/master/workflow_schematic.png)
+
 ## Network data availability
 All functions are contained in **network_data_availability.py**
 These create site and data availability metadata files for the following networks:
@@ -17,6 +19,8 @@ These create site and data availability metadata files for the following network
 - Riverfly survey (RS)
 - FreshwaterWatch (FWW)
 - National river flow archive (NRFA)
+
+![Workflow schematic](https://github.com/NERC-CEH/NCEA-Freshwater-Workflow/blob/master/backend_schematic.png)
 
 Each network has a “**create_{NETWORK_ID}_metadata()**” function which goes to
 the data source and creates 3 CSV metadata files:

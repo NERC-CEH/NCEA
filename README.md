@@ -17,6 +17,7 @@ These create site and data availability metadata files for the following network
 - EA Diatom (EA_DIAT)
 - EA fish count data (EA_FISH)
 - Riverfly survey (RS)
+- SmartRivers (SMTR)
 - FreshwaterWatch (FWW)
 - National river flow archive (NRFA)
 
@@ -31,7 +32,7 @@ the data source and creates 3 CSV metadata files:
 Use **create_all_metadata_csv()** to run these for all networks sequentially.
 
 _Note, Some networks read data from downloaded files others from APIs:_
-- _File_: EA_INV, EA_MACP, EA_DIAT, EA_FISH, RS, FWW
+- _File_: EA_INV, EA_MACP, EA_DIAT, EA_FISH, RS, SMTR, FWW
 - _API_: EA_WQ
 - _Combination of both_: NRFA
 

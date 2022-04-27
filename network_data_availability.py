@@ -1070,6 +1070,169 @@ def create_RF_metadata():
         date_format=config.DATE_FORMAT)
 
 
+# *** SmartRivers *************************************************************
+"""
+Site and availability data for SmartRivers (SMTR) fetched from CSV.
+
+"""
+SMTR_DTYPE_DICT = {
+    "PSI": {
+        "name": "Proportion of Sediment-sensitive Invertebrates Index",
+        "desc": "Sediment pressure",
+        "unit": "score",
+    },
+    "TRPI": {
+        "name": "Total Reactive Phosphorus Index",
+        "desc": "Phosphorus pressure",
+        "unit": "score",
+    },
+    "SPEAR": {
+        "name": "Species At Risk",
+        "desc": "Chemical pressure",
+        "unit": "score",
+    },
+    "Saprobic": {
+        "name": "Saprobic index",
+        "desc": "Organic pressure",
+        "unit": "score",
+    },
+    "LIFE": {
+        "name": "Lotic Invertebrate Flow Evaluation",
+        "desc": "Flow pressure",
+        "unit": "score",
+    },
+    "BMWP": {
+        "name": "Biological Monitoring Working Party Score",
+        "desc": None,
+        "unit": "score",
+    },
+    "CCI": {
+        "name": "Community Conservation Index",
+        "desc": "The final Community Conservation Index.",
+        "unit": "score",
+    },
+    "ASPT": {
+        "name": "BMWP index Average Score Per Taxon",
+        "desc": None,
+        "unit": "average score per taxon",
+    },
+    "NTAXA": {
+        "name": "Number of taxa",
+        "desc": None,
+        "unit": "count",
+    },
+    "EPT sp": {
+        "name": "Ephemeroptera, Plecoptera, Trichoptera (riverfly species)",
+        "desc": None,
+        "unit": "count",
+    },
+    "WHPT": {
+        "name": "Walley Hawkes Paisley Trigg Index",
+        "desc": None,
+        "unit": "score",
+    },
+    "WHPT ASPT": {
+        "name": "Walley Hawkes Paisley Trigg Average Score Per Taxa",
+        "desc": "",
+        "unit": "average score per taxon",
+    },
+}
+
+
+def create_SMTR_metadata():
+    """
+    Fetch site, data availability and data type info for SmartRivers (SMTR)
+    data and save to file.
+
+    """
+    print("SMTR metadata")
+    # Create data types data
+    dtype_rows = {}
+    dtype_ids = []
+    for dtype_id, dtype_info in SMTR_DTYPE_DICT.items():
+        dtype_ids.append(dtype_id)
+        dtype_dict = make_dtype_dict(dtype_id=dtype_id,
+                                     dtype_name=dtype_info["name"],
+                                     network_id=config.SMTR_ID,
+                                     dtype_desc=dtype_info["desc"],
+                                     units=dtype_info["unit"])
+        dtype_rows[dtype_id] = dtype_dict
+
+    usecols = ["Site", "River", "Date/Time: Date", "Date/Time: Time",
+               "Location: Latitude", "Location: Longitude"] + dtype_ids
+
+    sites_rows = []
+    avail_rows = []
+
+    smtr_data = pd.read_excel(paths.SMTR_RAW_FILE,
+                              sheet_name="Per-Survey Data",
+                              usecols=usecols)
+
+    smtr_data["Site_full"] = smtr_data["Site"] + smtr_data["River"] + \
+                             smtr_data["Location: Latitude"].astype(str) + \
+                             smtr_data["Location: Longitude"].astype(str)
+
+    smtr_data["Site_id"] = smtr_data["Site_full"].apply(utils._md5_hash)
+    smtr_data.drop('Site_full', axis=1, inplace=True)
+
+    smtr_data["DateTime"] = pd.to_datetime(
+        smtr_data["Date/Time: Date"] + " " + smtr_data["Date/Time: Time"])
+
+    for site_id in smtr_data["Site_id"].unique():
+
+        smtr_site = smtr_data.loc[smtr_data["Site_id"] == site_id]
+        if len(smtr_site) == 0:
+            continue
+
+        # Create site data
+        site_dict = make_site_dict(
+            site_id=site_id,
+            site_name=smtr_site.iloc[0]["Site"],
+            network_id=config.SMTR_ID,
+            lat=smtr_site.iloc[0]["Location: Latitude"],
+            long=smtr_site.iloc[0]["Location: Longitude"]
+        )
+
+        sites_rows.append(site_dict)
+
+        # Sort dtype and data availaibility
+        for dtype_id in dtype_ids:
+            smtr_site_dtype = smtr_site.loc[smtr_site[dtype_id].notnull(),
+                                        ["DateTime", dtype_id]]
+
+            if len(smtr_site_dtype) == 0:
+                continue
+
+            dtype_mean = round(smtr_site_dtype[dtype_id].mean(), 2)
+
+            avail_dict = make_avail_dict(
+                site_id=site_id,
+                network_id=config.SMTR_ID,
+                dtype_id=dtype_id,
+                start_date=smtr_site_dtype["DateTime"].min(),
+                end_date=smtr_site_dtype["DateTime"].max(),
+                value_count=len(smtr_site_dtype),
+                value_mean=dtype_mean
+            )
+            avail_rows.append(avail_dict)
+
+    dtype_rows = _add_dtype_stats(avail_rows, dtype_rows)
+
+    pd.DataFrame(dtype_rows.values()).to_csv(
+        paths.DTYPE_REGISTER_FPATH.format(NETWORK=config.SMTR_ID),
+        index=False,
+        date_format=config.DATE_FORMAT)
+
+    pd.DataFrame(sites_rows).to_csv(
+        paths.SITE_REGISTER_FPATH.format(NETWORK=config.SMTR_ID),
+        index=False,
+        date_format=config.DATE_FORMAT)
+
+    pd.DataFrame(avail_rows).to_csv(
+        paths.DATA_AVAILABILITY_FPATH.format(NETWORK=config.SMTR_ID),
+        index=False,
+        date_format=config.DATE_FORMAT)
+
 
 # *** Fresh water watch *******************************************************
 """
@@ -1376,6 +1539,7 @@ def create_all_metadata_csv():
     create_all_EA_BIO_metadata()
     create_EA_FISH_metadata()
     create_RF_metadata()
+    create_SMTR_metadata()
     create_FWW_metadata()
     create_NRFA_metadata()
 
@@ -1560,6 +1724,24 @@ def create_network_json():
     )
     network_json.append(_to_json_format(RF_dict))
 
+    # SmartRivers
+    SMTR_dict = make_network_dict(
+        network_id=config.SMTR_ID,
+        network_name="SmartRivers",
+        network_desc="SmartRivers - a member of the Riverfly Plus citizen "
+                     "science family - enables volunteers, supported by an "
+                     "IFM certified training scheme, to monitor the water "
+                     "quality in their rivers to a near-professional "
+                     "standard.",
+        folder="smartrivers",
+        shape="hexagon",
+        access="geojson",
+        updates="Realtime data not available",
+        website=paths.SMTR_WEBSITE,
+        dtype_ids=_get_dtype_dicts(config.SMTR_ID),
+    )
+    network_json.append(_to_json_format(SMTR_dict))
+
     # Fresh water watch
     FWW_dict = make_network_dict(
         network_id=config.FWW_ID,
@@ -1591,11 +1773,8 @@ def create_network_json():
     )
     network_json.append(_to_json_format(FWW_dict))
 
-
-
     with open(paths.METADATA_NETWORK_JSON_FILE, 'w') as f:
         json.dump(network_json, f)
-
 
 
 # *** Convert to GeoJSON ******************************************************
@@ -1892,6 +2071,7 @@ if __name__ == "__main__":
     #create_all_EA_BIO_metadata()
     #create_EA_FISH_metadata()
     #create_RF_metadata()
+    #create_SMTR_metadata()
     #create_FWW_metadata()
     #create_NRFA_metadata()
 
@@ -1899,4 +2079,4 @@ if __name__ == "__main__":
     #create_all_metadata_csv()
 
     #create_network_json()
-    availability_geojson_split("RF", split_area="ihu_areas")
+    availability_geojson_split("SMTR", split_area="op_catchments")

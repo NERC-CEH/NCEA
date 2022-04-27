@@ -115,10 +115,19 @@ RF_RAW_DIR = make_fpath(raw_dirs + ["RiverFlies", "catchments"])
 RF_WEBSITE = "https://www.riverflies.org/"
 
 
+# --- SmartRivers -------------------------------------------------------------
+# Files
+SMTR_RAW_FILE = make_fpath(raw_dirs + ["SmartRivers",
+                                       "SmartRivers_dataset.xlsx"])
+
+# URLs
+SMTR_WEBSITE = "https://salmon-trout.org/smart-rivers/"
+
+
 # --- Fresh water watch -------------------------------------------------------
 # Files
-FWW_RAW_FILE = make_fpath(raw_dirs+ ["FreshWater_Watch",
-                                     "fww-dataset-latest.csv"])
+FWW_RAW_FILE = make_fpath(raw_dirs + ["FreshWater_Watch",
+                                      "fww-dataset-latest.csv"])
 
 # URLs
 FWW_WEBSITE = "https://freshwaterwatch.thewaterhub.org/"
@@ -126,10 +135,10 @@ FWW_WEBSITE = "https://freshwaterwatch.thewaterhub.org/"
 
 # --- NRFA --------------------------------------------------------------------
 # Files
-NRFA_CDR_DATA_FILE = make_fpath(raw_dirs+ ["NRFA",
-                                           "mean_nrfa_cdr_rainfall.csv"])
-NRFA_AMAX_DATA_FILE = make_fpath(raw_dirs+ ["NRFA",
-                                            "mean_nrfa_amax_flow.csv"])
+NRFA_CDR_DATA_FILE = make_fpath(raw_dirs + ["NRFA",
+                                            "mean_nrfa_cdr_rainfall.csv"])
+NRFA_AMAX_DATA_FILE = make_fpath(raw_dirs + ["NRFA",
+                                             "mean_nrfa_amax_flow.csv"])
 
 # URLs
 NRFA_API_URL = "https://nrfaapps.ceh.ac.uk/nrfa/ws"
@@ -171,6 +180,8 @@ SAN_AVAIL_JSON_DIRS = {
                                                    "availability"]),
     config.RF_ID: make_fpath(san_FWDE_dirs + ["riverflies",
                                               "availability"]),
+    config.SMTR_ID: make_fpath(san_FWDE_dirs + ["smartrivers",
+                                                "availability"]),
     config.FWW_ID: make_fpath(san_FWDE_dirs + ["fww",
                                                "availability"]),
     config.NRFA_ID: make_fpath(san_FWDE_dirs + ["nrfa",
@@ -190,6 +201,8 @@ SAN_MAPS_JSON_DIRS = {
                                                    "maps"]),
     config.RF_ID: make_fpath(san_FWDE_dirs + ["riverflies",
                                               "maps"]),
+    config.SMTR_ID: make_fpath(san_FWDE_dirs + ["smartrivers",
+                                                "maps"]),
     config.FWW_ID: make_fpath(san_FWDE_dirs + ["fww",
                                                "maps"]),
     config.NRFA_ID: make_fpath(san_FWDE_dirs + ["nrfa",
@@ -209,6 +222,8 @@ SAN_GRAPHS_JSON_DIRS = {
                                                    "graphs"]),
     config.RF_ID: make_fpath(san_FWDE_dirs + ["riverflies",
                                               "graphs"]),
+    config.SMTR_ID: make_fpath(san_FWDE_dirs + ["smartrivers",
+                                                "graphs"]),
     config.FWW_ID: make_fpath(san_FWDE_dirs + ["fww",
                                                "graphs"]),
     config.NRFA_ID: make_fpath(san_FWDE_dirs + ["nrfa",

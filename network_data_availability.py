@@ -1087,7 +1087,7 @@ SMTR_DTYPE_DICT = {
         "unit": "score",
     },
     "SPEAR": {
-        "name": "Species At Risk",
+        "name": "Species At Risk (chemical pressure)",
         "desc": "Chemical pressure",
         "unit": "score",
     },
@@ -1587,6 +1587,14 @@ def _get_dtype_dicts(network_id):
                 "p_80": None,
             }
 
+        start_dates = avail_info[
+            avail_info["DTYPE_ID"] == dtype["DTYPE_ID"]]["START_DATE"]
+        start_date = pd.to_datetime(start_dates).min()
+
+        end_dates = avail_info[
+            avail_info["DTYPE_ID"] == dtype["DTYPE_ID"]]["END_DATE"]
+        end_date = pd.to_datetime(end_dates).max()
+
         dtype_dict = {
             "dtype_id": dtype["DTYPE_ID"],
             "dtype_name": dtype["DTYPE_NAME"],
@@ -1606,6 +1614,8 @@ def _get_dtype_dicts(network_id):
             "mean_mean": _try_round(dtype["MEAN_MEAN"], 2),
             "count_mean": count_mean,
             "site_count": len(dtype_counts),
+            "start_date": start_date.strftime(config.DATE_FORMAT),
+            "end_date": end_date.strftime(config.DATE_FORMAT),
         }
         dtype_dicts.append(dtype_dict)
 
@@ -2075,8 +2085,7 @@ if __name__ == "__main__":
     #create_FWW_metadata()
     #create_NRFA_metadata()
 
-
     #create_all_metadata_csv()
 
     #create_network_json()
-    availability_geojson_split("SMTR", split_area="op_catchments")
+    #availability_geojson_split("SMTR", split_area="ihu_areas")

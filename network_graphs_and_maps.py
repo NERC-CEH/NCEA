@@ -6,6 +6,8 @@ Create JSON files for the portal graphs and maps
 import paths
 import config
 import utils
+from network_data_availability import RF_DTYPE_DICT, \
+                                      SMTR_DTYPE_DICT
 
 import os
 import json
@@ -13,95 +15,6 @@ import pandas as pd
 import geopandas as gpd
 
 from geopandas.tools import sjoin
-
-
-# *** Riverflies **************************************************************
-"""
-Site and availability data for Riverflies (RF) fetched from CSV.
-
-"""
-RF_DTYPE_DICT = {
-    "Cased caddisfly score": {
-        "name": "Cased caddisfly score",
-        "desc": "",
-        "unit": "score",
-    },
-    "Cased caddisfly Num": {
-        "name": "Cased caddisfly Num",
-        "desc": "",
-        "unit": "count",
-    },
-    "Caseless caddisfly score": {
-        "name": "Caseless caddisfly score",
-        "desc": "",
-        "unit": "score",
-    },
-    "Caseless caddisfly Num": {
-        "name": "Caseless caddisfly Num",
-        "desc": "",
-        "unit": "count",
-    },
-    "Ephemeridae score": {
-        "name": "Ephemeridae score",
-        "desc": "",
-        "unit": "score",
-    },
-    "Ephemeridae Num": {
-        "name": "Ephemeridae Num",
-        "desc": "",
-        "unit": "count",
-    },
-    "Ephemerellidae score": {
-        "name": "Ephemerellidae score",
-        "desc": "",
-        "unit": "score",
-    },
-    "Ephemerellidae Num": {
-        "name": "Ephemerellidae Num",
-        "desc": "",
-        "unit": "count",
-    },
-    "Heptageniidae score": {
-        "name": "Heptageniidae score",
-        "desc": "",
-        "unit": "score",
-    },
-    "Heptageniidae Num": {
-        "name": "Heptageniidae Num",
-        "desc": "",
-        "unit": "count",
-    },
-    "Baetidae score": {
-        "name": "Baetidae score",
-        "desc": "",
-        "unit": "score",
-    },
-    "Baetidae Num": {
-        "name": "Baetidae Num",
-        "desc": "",
-        "unit": "count",
-    },
-    "Stoneflies score": {
-        "name": "Stoneflies score",
-        "desc": "",
-        "unit": "score",
-    },
-    "Stoneflies Num": {
-        "name": "Stoneflies Num",
-        "desc": "",
-        "unit": "count",
-    },
-    "Gammarus score": {
-        "name": "Gammarus score",
-        "desc": "",
-        "unit": "score",
-    },
-    "Gammarus Num": {
-        "name": "Gammarus Num",
-        "desc": "",
-        "unit": "count",
-    },
-}
 
 
 def create_RF_maps_and_graphs_data(save_live=False):
@@ -272,74 +185,6 @@ def create_RF_maps_and_graphs_data(save_live=False):
             tfile = open(json_fpath, "w")
             tfile.write(jsonStr)
             tfile.close()
-
-# *** Riverflies **************************************************************
-"""
-Site and availability data for Riverflies (RF) fetched from CSV.
-
-"""
-SMTR_DTYPE_DICT = {
-    "PSI": {
-        "name": "Proportion of Sediment-sensitive Invertebrates Index",
-        "desc": "Sediment pressure",
-        "unit": "score",
-    },
-    "TRPI": {
-        "name": "Total Reactive Phosphorus Index",
-        "desc": "Phosphorus pressure",
-        "unit": "score",
-    },
-    "SPEAR": {
-        "name": "Species At Risk",
-        "desc": "Chemical pressure",
-        "unit": "score",
-    },
-    "Saprobic": {
-        "name": "Saprobic index",
-        "desc": "Organic pressure",
-        "unit": "score",
-    },
-    "LIFE": {
-        "name": "Lotic Invertebrate Flow Evaluation",
-        "desc": "Flow pressure",
-        "unit": "score",
-    },
-    "BMWP": {
-        "name": "Biological Monitoring Working Party Score",
-        "desc": None,
-        "unit": "score",
-    },
-    "CCI": {
-        "name": "Community Conservation Index",
-        "desc": "The final Community Conservation Index.",
-        "unit": "score",
-    },
-    "ASPT": {
-        "name": "BMWP index Average Score Per Taxon",
-        "desc": None,
-        "unit": "average score per taxon",
-    },
-    "NTAXA": {
-        "name": "Number of taxa",
-        "desc": None,
-        "unit": "count",
-    },
-    "EPT sp": {
-        "name": "Ephemeroptera, Plecoptera, Trichoptera (riverfly species)",
-        "desc": None,
-        "unit": "count",
-    },
-    "WHPT": {
-        "name": "Walley Hawkes Paisley Trigg Index",
-        "desc": None,
-        "unit": "score",
-    },
-    "WHPT ASPT": {
-        "name": "Walley Hawkes Paisley Trigg Average Score Per Taxa",
-        "desc": "",
-        "unit": "average score per taxon",
-    },
-}
 
 
 def create_SMTR_maps_and_graphs_data(save_live=False):
